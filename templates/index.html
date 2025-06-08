@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Quote Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+    <div class="chat-container">
+        <h1>AI Quote Generator</h1>
+        <input id="topic" placeholder="Type topic (e.g., love, motivation, car love)" />
+        <div class="btn-group">
+            <button id="generateBtn">Generate</button>
+            <button id="regenerateBtn" disabled>Regenerate</button>
+        </div>
+        <ul id="results"></ul>
+    </div>
+
+    <script>
+        const topicInput = document.getElementById("topic");
+        const results = document.getElementById("results");
+        const generateBtn = document.getElementById("generateBtn");
+        const regenerateBtn = document.getElementById("regenerateBtn");
+
+        async function getQuotes() {
+            let topic = topicInput.value.trim();
+            if (!topic) {
+                alert("Please enter a topic");
+                return;
+            }
+
+            generateBtn.disabled = true;
+            regenerateBtn.disabled = true;
+            results.innerHTML = '<li>Loading quotes...</li>';
+
+            try {
+                const response = await fetch("/generate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ topic }),
+                });
+                const data = await response.json();
+
+                results.innerHTML = "";
+                data.quotes.forEach((quote) => {
+                    const li = document.createElement("li");
+                    li.textContent = quote;
+                    results.appendChild(li);
+                });
+
+                regenerateBtn.disabled = false;
+            } catch (error) {
+                results.innerHTML = "<li>Failed to load quotes.</li>";
+            } finally {
+                generateBtn.disabled = false;
+            }
+        }
+
+        generateBtn.addEventListener("click", getQuotes);
+        regenerateBtn.addEventListener("click", getQuotes);
+
+        // Optional: Enter key triggers generate
+        topicInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                getQuotes();
+            }
+        });
+    </script>
+</body>
+</html>
