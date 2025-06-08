@@ -48,7 +48,10 @@
                 results.innerHTML = "";
                 data.quotes.forEach((quote) => {
                     const li = document.createElement("li");
-                    li.textContent = quote;
+                    li.innerHTML = `
+                        <span>${quote}</span>
+                        <button onclick="copyToClipboard('${quote.replace(/'/g, "\\'")}')">📋</button>
+                    `;
                     results.appendChild(li);
                 });
 
@@ -60,10 +63,15 @@
             }
         }
 
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Copied to clipboard!");
+            });
+        }
+
         generateBtn.addEventListener("click", getQuotes);
         regenerateBtn.addEventListener("click", getQuotes);
 
-        // Optional: Enter key triggers generate
         topicInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
                 getQuotes();
